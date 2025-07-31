@@ -2,16 +2,21 @@ package com.ifoodlike.state;
 
 import com.ifoodlike.model.Order;
 
-public class PaymentState implements OrderState {
+public class PaymentState extends OrderState {
 
     @Override
-    public void nextState(Order order) {
+    public void prepare(Order order) {
         order.changeState(new PreparingState());
     }
 
     @Override
-    public void cancelOrder(Order order) {
+    public void cancel(Order order) {
         order.changeState(new CancelledState());
+    }
+
+    @Override
+    public void nextState(Order order) {
+        this.prepare(order);
     }
 
     @Override

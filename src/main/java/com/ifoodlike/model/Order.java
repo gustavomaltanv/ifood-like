@@ -9,13 +9,15 @@ import com.ifoodlike.strategy.PaymentService;
 import com.ifoodlike.strategy.PaymentStrategy;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class Order {
+public class Order implements Cloneable, Iterable<OrderItem> {
     private String orderId;
     private Customer customer;
     private Restaurant restaurant;
     private OrderState currentState;
+    private List<OrderItem> orderItems = new ArrayList<>();
     private List<OrderObserver> observers;
 
     public Order(String orderId, Customer customer, Restaurant restaurant) {
@@ -52,7 +54,7 @@ public class Order {
     }
 
     public void cancel() {
-        this.currentState.cancelOrder(this);
+        this.currentState.cancel(this);
     }
 
     public boolean initiatePayment(double amount, PaymentStrategy paymentStrategy) {
@@ -101,5 +103,36 @@ public class Order {
         for (OrderObserver observer : observers) {
             observer.update(this);
         }
+    }
+
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
+
+    @Override
+    public Order clone() {
+        try {
+            Order cloned = (Order) super.clone();
+            cloned.orderItems = new ArrayList<>();
+            Iterator<OrderItem> it = this.orderItems.iterator();
+            while (it.hasNext()) {
+                OrderItem item = it.next();
+                OrderItem clonedItem = new OrderItem(item.getNome());
+                cloned.orderItems.add(clonedItem);
+            }
+            cloned.observers = new ArrayList<>();
+            return cloned;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    @Override
+    public Iterator<OrderItem> iterator() {
+        return orderItems.iterator();
     }
 }

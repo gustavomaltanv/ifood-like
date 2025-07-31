@@ -166,7 +166,7 @@ public class OrderStateTest {
     void deliveredStateNextStateShouldThrowException() {
         order.changeState(new DeliveredState());
         UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class, () -> order.nextState());
-        assertEquals("Order already finished.", thrown.getMessage());
+        assertEquals("Not possible to do anything with order.", thrown.getMessage());
     }
 
     @Test
@@ -174,7 +174,7 @@ public class OrderStateTest {
     void deliveredStateCancelShouldThrowException() {
         order.changeState(new DeliveredState());
         UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class, () -> order.cancel());
-        assertEquals("Not possible to cancel a finished order.", thrown.getMessage());
+        assertEquals("Not possible to cancel order.", thrown.getMessage());
     }
 
     @Test
@@ -182,7 +182,7 @@ public class OrderStateTest {
     void cancelledStateNextStateShouldThrowException() {
         order.changeState(new CancelledState());
         UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class, () -> order.nextState());
-        assertEquals("Don't have a next state, order has been cancelled.", thrown.getMessage());
+        assertEquals("Not possible to do anything with order.", thrown.getMessage());
     }
 
     @Test
@@ -190,6 +190,6 @@ public class OrderStateTest {
     void cancelledStateCancelShouldThrowException() {
         order.changeState(new CancelledState());
         UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class, () -> order.cancel());
-        assertEquals("Order is already cancelled.", thrown.getMessage());
+        assertEquals("Not possible to cancel order.", thrown.getMessage());
     }
 }

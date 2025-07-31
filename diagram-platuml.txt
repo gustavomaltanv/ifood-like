@@ -1,0 +1,131 @@
+@startuml
+
+' ==== MODELS ====
+class Order {
+    - orderId: String
+    - customer: Customer
+    - restaurant: Restaurant
+    - currentState: OrderState
+    - orderItems: List<OrderItem>
+    - observers: List<OrderObserver>
+    + clone(): Order
+}
+class Customer
+class Restaurant
+class OrderItem
+class User
+
+User <|-- Customer
+User <|-- Restaurant
+Order "1" o-- "1" Customer
+Order "1" o-- "1" Restaurant
+Order "1" o-- "*" OrderItem
+
+' ==== STATE ====
+abstract class OrderState {
+    + nextState(order: Order)
+    + cancel(order: Order)
+    + getStatus(): String
+}
+OrderState <|-- CreatedState
+OrderState <|-- PaymentState
+OrderState <|-- PreparingState
+OrderState <|-- ShippingState
+OrderState <|-- DeliveredState
+OrderState <|-- CancelledState
+Order *-- OrderState
+
+' ==== STRATEGY ====
+interface PaymentStrategy {
+    + pay(amount: double, order: Order): boolean
+}
+PaymentStrategy <|.. CreditCardPayment
+PaymentStrategy <|.. PixPayment
+class PaymentService {
+    - paymentStrategy: PaymentStrategy
+    + setPaymentStrategy(PaymentStrategy)
+    + executePayment(amount, order)
+}
+Order ..> PaymentStrategy
+Order ..> PaymentService
+
+' ==== SINGLETON ====
+class OrderService {
+    - instance: OrderService
+    + getInstance(): OrderService
+}
+OrderService --* Order
+
+' ==== OBSERVER ====
+interface OrderObserver {
+    + update(order: Order)
+}
+OrderObserver <|.. CustomerNotifier
+OrderObserver <|.. RestaurantNotifier
+OrderObserver <|.. DeliveryNotifier
+Order "1" o-- "*" OrderObserver
+
+' ==== CHAIN OF RESPONSIBILITY ====
+abstract class OrderRequestHandler {
+    - next: OrderRequestHandler
+    + setNext(handler: OrderRequestHandler)
+    + handle(request: OrderRequest)
+}
+OrderRequestHandler <|-- CustomerHandler
+OrderRequestHandler <|-- RestaurantHandler
+OrderRequestHandler <|-- DeliveryDriverHandler
+OrderRequestHandler <|.. OrderService
+OrderRequestHandler o-- OrderRequest
+OrderRequest o-- Order
+OrderRequest o-- User
+
+class OrderRequest {
+    - order: Order
+    - user: User
+    - action: String
+    - amount: double
+}
+
+' ==== BUILDER ====
+class OrderBuilder {
+    + setOrderId(String): OrderBuilder
+    + setCustomer(Customer): OrderBuilder
+    + setRestaurant(Restaurant): OrderBuilder
+    + addItem(OrderItem): OrderBuilder
+    + build(): Order
+}
+OrderBuilder ..> Order
+
+' ==== PROTOTYPE ====
+Order ..|> Cloneable
+
+' ==== COMMAND ====
+interface Command {
+    + execute()
+}
+Command <|.. CreateOrderCommand
+Command <|.. CancelOrderCommand
+Command <|.. NextOrderStateCommand
+class OrderInvoker {
+    - command: Command
+    + setCommand(Command)
+    + executeCommand()
+}
+CreateOrderCommand o-- Order
+CancelOrderCommand o-- Order
+NextOrderStateCommand o-- Order
+OrderInvoker ..> Command
+
+' ==== FACADE ====
+class OrderFacade {
+    - invoker: OrderInvoker
+    + criarPedido(...)
+    + cancelarPedido(...)
+    + avancarEstadoPedido(...)
+}
+OrderFacade ..> OrderInvoker
+OrderFacade ..> CreateOrderCommand
+OrderFacade ..> CancelOrderCommand
+OrderFacade ..> NextOrderStateCommand
+
+@enduml
