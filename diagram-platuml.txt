@@ -1,4 +1,5 @@
 @startuml
+scale 0.75
 
 ' ==== MODELS ====
 class Order {
@@ -98,6 +99,9 @@ OrderBuilder ..> Order
 
 ' ==== PROTOTYPE ====
 Order ..|> Cloneable
+
+' ==== ITERATOR ====
+Order ..|> Iterable
 
 ' ==== COMMAND ====
 interface Command {

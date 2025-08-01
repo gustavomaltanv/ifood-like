@@ -8,6 +8,7 @@ Simulação de um sistema de entregas utilizando os *design patterns* Observer, 
 
     * versão 2:
 ![Segundo Diagrama](./diagram2.png)
+
 * **State:**
 
 ![States](./estados.png)
